@@ -1,34 +1,76 @@
-import { FirstComeFirstServed, ShortestJobNext } from "@/Algorithms/Algorithms";
+import { FirstComeFirstServed, PriorityBasedScheduling, RoundRobin, ShortestJobNext } from "@/Algorithms/Algorithms";
+import CPUFile from "@/components/CPUFile";
 import ProcessRep from "@/components/ProcessRep";
 import { useEffect, useState } from "react";
-
+import AlgoDropdown from "@/components/AlgoDropdown";
 function processClass(timeRemaining, priority, timeInserted){
   this.timeRemaining = timeRemaining;
   this.priority = priority;
-  this.timeInserted = timeInserted
+  this.timeInserted = timeInserted;
+  this.wasVisited = 0;
 }
 
 export default function Home() {
+  const listOfSchedulingBehaviours = ["First Come, First Served", "Shortest Job Next", "Shortest Remaining Job", "Round Robin", "Priority Based Scheduling"];
+  const [selectedSched, setSelectedSched] = useState(1);
   const[processList, addProcess] = useState([]);
   const [num, setNum] = useState(0);
   const [cycle, setCycle] = useState(0);
   const [curPri, setCurPrio] = useState("");
   const [curLen, setCurLen] = useState("");
   const [globalTimer, setGlobalTimer] = useState(0);
+  const [finishedProcess, changeFinishedProcess] = useState(0);
+  const [setNewProcess, setSetNewProcess] = useState(false);
+  const [redRobinCounter, setRedRobinCounter] = useState(5);
   useEffect(()=>{
+    handleAlgos(true,setNewProcess);
   },[globalTimer]);
   const deleteArrMember = timeInserted =>{
     addProcess(processList.filter(proc=>proc.timeInserted !== timeInserted));
-    setCycle(ShortestJobNext(processList));
+    changeFinishedProcess(finishedProcess+1);
+    setSetNewProcess(true);
   };
+  const setAlgo = (id)=>{
+    setSelectedSched(id)
+  };
+  const handleAlgos = (inUseEffect, updateProcess)=>{
+    if(inUseEffect){
+      if(selectedSched == 0){
+        setCycle(FirstComeFirstServed(processList));
+      }
+      else if(selectedSched == 1 && updateProcess){ //ShortestJobNext
+        setCycle(ShortestJobNext(processList));
+        setSetNewProcess(false);
+      } 
+      else if(selectedSched == 2){ //Shortest Remaining Time
+        
+        setCycle(ShortestJobNext(processList)); //Scans after each second checking if there is another process that has a smaller time remaining 
+      }
+      else if(selectedSched ==3){
+        setCycle(RoundRobin(processList, redRobinCounter));
+      }
+      else if(selectedSched == 4){
+        setCycle(PriorityBasedScheduling(processList));
+      }
+
+    }
+    
+  }
+
   if(processList.length !=0){
     setTimeout(()=>{setGlobalTimer(globalTimer+1)},1000);
   }
   return (
     <div>
+      <AlgoDropdown func={setAlgo}/>
+      <div>Currently Selected: {listOfSchedulingBehaviours[selectedSched]}</div>
+      <div className="py-1">Set Red Robin Counter: <input value={redRobinCounter} onChange={(e)=>{
+        setRedRobinCounter(e.target.value);
+      }}></input></div>
       <div>
+        <div></div>
         <div className="flex">
-        <div className="border-2 w-64">
+          <div className="border-2 w-64">
             <div className="flex">
               <div className="pr-4">Priority of Process:</div>
               <input className="w-inpBox" inputMode="number" type="text" value={curPri} onChange={(e)=>{
@@ -53,25 +95,33 @@ export default function Home() {
             </div>
       </div>
       <div>Time to complete processes: {globalTimer > 0 ? globalTimer-1 : 0}</div>
+      <div> Number of Completed Processes: {finishedProcess}</div>
       <button onClick={()=>{
         setCycle((cycle +1) % processList.length);
       }}>Start</button>
       <button className="px-4" onClick={()=>{
         addProcess([]);
-        setGlobalTimer(0);
+        setGlobalTimer(prev => 0);
         setNum(0);
+        changeFinishedProcess(prev => 0);
       }}>Clear</button>
+      <hr className="" height={22}></hr>
+      <hr/><hr/><hr/>
+      <hr/><hr/><hr/>
+      <div className="p-2"></div>
+      
       <div className="grid">
         <div className="flex-wrap flex w-full text-center">{processList.map((proc,id)=>{
           
           if(id == cycle){
-            return<div key={proc.timeInserted}> <ProcessRep  proc={proc} select={true} listID={proc.timeInserted} onZero={deleteArrMember}/>
-              <div>{proc.timeInserted}</div>
+            return<div key={proc.timeInserted} className="px-2"> <ProcessRep  proc={proc} select={true} listID={proc.timeInserted} onZero={deleteArrMember}/>
+            <CPUFile/>
             </div>
           }
           
-          return <div key={proc.timeInserted}><ProcessRep proc={proc} select={false} listID={proc.timeInserted} onZero={deleteArrMember}/>
-          <div>{proc.timeInserted}</div></div>
+          return <div key={proc.timeInserted} className="px-2"><ProcessRep proc={proc} select={false} listID={proc.timeInserted} onZero={deleteArrMember}/>
+          
+          </div>
         })}</div>
       </div>
       

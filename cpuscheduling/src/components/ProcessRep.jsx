@@ -12,14 +12,17 @@ export default function ProcessRep(props){
             props.onZero(props.listID)
             clearTimeout(timer)
         }
-        return<div> 
-            <div className="px-10 w-8 text-center border-2 bg-red-300">{timeRemaining}</div>
-            
+        return<div className="w-32 border-2 rounded-3xl border-gray-600 bg-red-300 animate-pulse"> 
+                <div className="text-center justify-center">{timeRemaining - ( props.proc.wasVisted > 0)}</div>
+                <div className="px-10"></div> 
+            <div>Priority: {props.proc.priority}</div>
         </div>
     }
-    return <div>
+    return <div className="w-32 border-2 rounded-3xl border-gray-600">
         
-        <div className="px-10 w-8 text-center border-2">{timeRemaining}</div>
         
+                <div className="text-center">{timeRemaining - ( props.proc.wasVisted > 0)}</div>
+            
+            <div>Priority: {props.proc.priority}</div>
     </div>
 }
