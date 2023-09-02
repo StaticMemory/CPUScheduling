@@ -3,6 +3,7 @@ import CPUFile from "@/components/CPUFile";
 import ProcessRep from "@/components/ProcessRep";
 import { useEffect, useState } from "react";
 import AlgoDropdown from "@/components/AlgoDropdown";
+import StartStopClearBar from "@/components/StartStopClearBar";
 function processClass(timeRemaining, priority, timeInserted){
   this.timeRemaining = timeRemaining;
   this.priority = priority;
@@ -22,6 +23,21 @@ export default function Home() {
   const [finishedProcess, changeFinishedProcess] = useState(0);
   const [setNewProcess, setSetNewProcess] = useState(false);
   const [redRobinCounter, setRedRobinCounter] = useState(5);
+  const [isPaused, setIsPaused] = useState(false);
+  const [isStarted, setIsStarted] = useState(false);
+  const setStarted = ()=>{
+    if(isStarted){
+      addProcess([]);
+      setGlobalTimer(prev => 0);
+      setNum(0);
+      changeFinishedProcess(prev => 0);
+    }
+    setIsStarted(prev => !prev);
+  }
+  const setPaused = ()=>{
+    setIsPaused(prev =>!prev)
+  }
+  
   useEffect(()=>{
     handleAlgos(true,setNewProcess);
   },[globalTimer]);
@@ -57,7 +73,7 @@ export default function Home() {
     
   }
 
-  if(processList.length !=0){
+  if(processList.length !=0 && isStarted && !isPaused){
     setTimeout(()=>{setGlobalTimer(globalTimer+1)},1000);
   }
   return (
@@ -96,15 +112,7 @@ export default function Home() {
       </div>
       <div>Time to complete processes: {globalTimer > 0 ? globalTimer-1 : 0}</div>
       <div> Number of Completed Processes: {finishedProcess}</div>
-      <button onClick={()=>{
-        setCycle((cycle +1) % processList.length);
-      }}>Start</button>
-      <button className="px-4" onClick={()=>{
-        addProcess([]);
-        setGlobalTimer(prev => 0);
-        setNum(0);
-        changeFinishedProcess(prev => 0);
-      }}>Clear</button>
+      <StartStopClearBar isStarted={isStarted} isPaused={isPaused} start={setStarted} pause={setPaused}/>
       <hr className="" height={22}></hr>
       <hr/><hr/><hr/>
       <hr/><hr/><hr/>
@@ -114,12 +122,12 @@ export default function Home() {
         <div className="flex-wrap flex w-full text-center">{processList.map((proc,id)=>{
           
           if(id == cycle){
-            return<div key={proc.timeInserted} className="px-2"> <ProcessRep  proc={proc} select={true} listID={proc.timeInserted} onZero={deleteArrMember}/>
-            <CPUFile/>
+            return<div key={proc.timeInserted} className="px-2"> <ProcessRep paused={isPaused} started={isStarted} proc={proc} select={true} listID={proc.timeInserted} onZero={deleteArrMember}/>
+            <CPUFile paused={isPaused} started={isStarted}/>
             </div>
           }
           
-          return <div key={proc.timeInserted} className="px-2"><ProcessRep proc={proc} select={false} listID={proc.timeInserted} onZero={deleteArrMember}/>
+          return <div key={proc.timeInserted} className="px-2"><ProcessRep paused={isPaused} started={isStarted} proc={proc} select={false} listID={proc.timeInserted} onZero={deleteArrMember}/>
           
           </div>
         })}</div>

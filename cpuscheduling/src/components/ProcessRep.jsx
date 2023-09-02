@@ -5,8 +5,10 @@ export default function ProcessRep(props){
     let timer = null;
     if(props.select === true){
         timer = setTimeout(()=>{
-            setTimeRemaining(timeRemaining-1);
-            props.proc.timeRemaining = timeRemaining;
+            if(props.started && !props.paused){
+                setTimeRemaining(timeRemaining-1);
+                props.proc.timeRemaining = timeRemaining;
+            }
         },1000);
         if(timeRemaining === 0){
             props.onZero(props.listID)

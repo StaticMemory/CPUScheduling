@@ -1,3 +1,10 @@
 export default function CPUFile(props){
-    return <div>Currently Working!</div>
+    if(props.started){
+        return <div>
+            <div>{props.paused ? "Paused!" : "Not Paused!"}</div>
+        </div>
+    }
+    return <div>
+        <div>Hasn't Started Yet!</div>
+    </div>
 }
