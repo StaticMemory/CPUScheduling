@@ -16,6 +16,12 @@ module.exports = {
         'inpBox' : '6.64rem',
         'inpBox2' : '6.74rem',
       },
+      keyframes:{
+
+      },
+      animation:{
+        
+      },
     },
   },
   plugins: [],

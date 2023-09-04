@@ -4,6 +4,8 @@ import ProcessRep from "@/components/ProcessRep";
 import { useEffect, useState } from "react";
 import AlgoDropdown from "@/components/AlgoDropdown";
 import StartStopClearBar from "@/components/StartStopClearBar";
+import CoolSideBar from "@/components/CoolSideBar";
+import MenuToggle from "@/components/MenuToggle";
 function processClass(timeRemaining, priority, timeInserted){
   this.timeRemaining = timeRemaining;
   this.priority = priority;
@@ -25,6 +27,14 @@ export default function Home() {
   const [redRobinCounter, setRedRobinCounter] = useState(5);
   const [isPaused, setIsPaused] = useState(false);
   const [isStarted, setIsStarted] = useState(false);
+  const [renderBar, setRenderBar] = useState(true);
+  const [selectedAlgo, setSelectedAlgo] = useState(0);
+  const setRender = ()=>{
+    setRenderBar(prev=> !prev);
+  }
+  const swapSelectedAlgo = (id) =>{
+    setSelectedAlgo(id);
+  }
   const setStarted = ()=>{
     if(isStarted){
       addProcess([]);
@@ -47,7 +57,12 @@ export default function Home() {
     setSetNewProcess(true);
   };
   const setAlgo = (id)=>{
-    setSelectedSched(id)
+    addProcess([]);
+    setGlobalTimer(prev => 0);
+    setNum(0);
+    changeFinishedProcess(prev => 0);
+    setSelectedSched(prev=>id)
+    
   };
   const handleAlgos = (inUseEffect, updateProcess)=>{
     if(inUseEffect){
@@ -77,63 +92,70 @@ export default function Home() {
     setTimeout(()=>{setGlobalTimer(globalTimer+1)},1000);
   }
   return (
-    <div>
-      <AlgoDropdown func={setAlgo}/>
-      <div>Currently Selected: {listOfSchedulingBehaviours[selectedSched]}</div>
-      <div className="py-1">Set Red Robin Counter: <input value={redRobinCounter} onChange={(e)=>{
-        setRedRobinCounter(e.target.value);
-      }}></input></div>
+    <div className="">
+    <div className="bg-gray-500 border-black border">
+      <CoolSideBar hide={renderBar} func={setRender} swapFunc ={swapSelectedAlgo}/>
+      <div className="flex justify-between">
+      <MenuToggle func={setRender}/>
       <div>
+        <div className="text-center text-xl"><b>{listOfSchedulingBehaviours[selectedAlgo]}</b></div>
+      </div>
         <div></div>
+      </div>
+      
+      <div className="flex justify-between ">
+      <div className="border-2 border-black">
+        
         <div className="flex">
-          <div className="border-2 w-64">
+          <div className=" w-72">
             <div className="flex">
-              <div className="pr-4">Priority of Process:</div>
-              <input className="w-inpBox" inputMode="number" type="text" value={curPri} onChange={(e)=>{
+              <div className="pr-4 font-serif w-48">Priority of Process:</div>
+              <input className="w-inpBox border-2 border-black " inputMode="number" type="text" value={curPri} onChange={(e)=>{
                 setCurPrio(e.target.value)
               }}></input>
             </div>
         </div>
-        <button onClick={()=>{
+        <button className="px-2" onClick={()=>{
           addProcess((proc)=>[...proc, new processClass(parseInt(curLen),parseInt(curPri), num)]);
           setCurLen("");
           setCurPrio("");
           setNum(num+1);
         }}>Create Process!</button>
           
-            <div></div>
           </div>
-            <div className="flex">
-              <div className="pr-4">Length of Process:</div>
-              <input className="w-inpBox2" inputMode="number" type="text" value={curLen} onChange={(e)=>{
+            <div className="flex py-1 w-72">
+              <div className=" font-serif w-48">Length of Process: </div>
+              <input className="w-inpBox border-2 border-black" inputMode="number" type="text" value={curLen} onChange={(e)=>{
                 setCurLen(e.target.value)
               }}></input>
             </div>
       </div>
-      <div>Time to complete processes: {globalTimer > 0 ? globalTimer-1 : 0}</div>
-      <div> Number of Completed Processes: {finishedProcess}</div>
+      <div className=""></div>
+      <div></div>
+      <div></div>
+      </div>
+      <div className="font-serif">Time to complete processes: {globalTimer > 0 ? globalTimer-1 : 0}</div>
+      <div className="font-serif"> Number of Completed Processes: {finishedProcess}</div>
+      <div className="p-2"></div>
       <StartStopClearBar isStarted={isStarted} isPaused={isPaused} start={setStarted} pause={setPaused}/>
-      <hr className="" height={22}></hr>
-      <hr/><hr/><hr/>
-      <hr/><hr/><hr/>
+      
       <div className="p-2"></div>
       
       <div className="grid">
-        <div className="flex-wrap flex w-full text-center">{processList.map((proc,id)=>{
+        
+      </div>
+    </div>
+    <div className="flex-wrap flex w-full text-center justify-center">{processList.map((proc,id)=>{
           
           if(id == cycle){
             return<div key={proc.timeInserted} className="px-2"> <ProcessRep paused={isPaused} started={isStarted} proc={proc} select={true} listID={proc.timeInserted} onZero={deleteArrMember}/>
             <CPUFile paused={isPaused} started={isStarted}/>
             </div>
           }
-          
           return <div key={proc.timeInserted} className="px-2"><ProcessRep paused={isPaused} started={isStarted} proc={proc} select={false} listID={proc.timeInserted} onZero={deleteArrMember}/>
           
           </div>
         })}</div>
-      </div>
-      
-      
     </div>
   )
 }

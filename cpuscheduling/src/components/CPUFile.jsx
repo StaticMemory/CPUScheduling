@@ -1,7 +1,7 @@
 export default function CPUFile(props){
     if(props.started){
         return <div>
-            <div>{props.paused ? "Paused!" : "Not Paused!"}</div>
+            <div>{props.paused ? "Paused!" : ""}</div>
         </div>
     }
     return <div>
